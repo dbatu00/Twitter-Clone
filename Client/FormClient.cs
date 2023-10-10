@@ -22,6 +22,14 @@ namespace Client
 
         SimpleTcpClient client;
 
+        private void FormClient_Load(object sender, EventArgs e)
+        {
+            client = new SimpleTcpClient();
+            client.Delimiter = (byte)'\r';
+            client.StringEncoder = Encoding.UTF8;
+            client.DataReceived += Client_DataReceived;
+        }
+
         private void btnSend_Click(object sender, EventArgs e)
         {
             client.WriteLineAndGetReply(txtMessage.Text, TimeSpan.FromSeconds(3));
@@ -33,16 +41,6 @@ namespace Client
             client.Connect(txtHost.Text, Convert.ToInt32(txtPort.Text));
             btnConnect.Enabled = false;
             btnSend.Enabled = true;     
-        }
-
-        private void FormClient_Load(object sender, EventArgs e)
-        {
-            client = new SimpleTcpClient();
-            //client.Delimiter = 0x13; //enter
-            client.Delimiter = (byte)'\r';
-
-            client.StringEncoder = Encoding.UTF8;
-            client.DataReceived += Client_DataReceived;
         }
 
         private void Client_DataReceived(object sender, SimpleTCP.Message e)

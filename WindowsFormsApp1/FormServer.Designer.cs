@@ -47,6 +47,7 @@
             // 
             // btnStop
             // 
+            this.btnStop.Enabled = false;
             this.btnStop.Location = new System.Drawing.Point(450, 27);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(98, 23);
@@ -62,7 +63,6 @@
             this.txtHost.Name = "txtHost";
             this.txtHost.Size = new System.Drawing.Size(126, 22);
             this.txtHost.TabIndex = 11;
-            this.txtHost.TextChanged += new System.EventHandler(this.txtHost_TextChanged);
             // 
             // label2
             // 
