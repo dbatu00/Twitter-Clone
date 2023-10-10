@@ -87,7 +87,7 @@
             this.txtMessage.Name = "txtMessage";
             this.txtMessage.Size = new System.Drawing.Size(490, 37);
             this.txtMessage.TabIndex = 6;
-            this.txtMessage.TextChanged += new System.EventHandler(this.txtStatus_TextChanged);
+
             // 
             // btnSend
             // 

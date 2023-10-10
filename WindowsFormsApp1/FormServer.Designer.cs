@@ -62,6 +62,7 @@
             this.txtHost.Name = "txtHost";
             this.txtHost.Size = new System.Drawing.Size(126, 22);
             this.txtHost.TabIndex = 11;
+            this.txtHost.TextChanged += new System.EventHandler(this.txtHost_TextChanged);
             // 
             // label2
             // 
