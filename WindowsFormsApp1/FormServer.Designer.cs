@@ -47,7 +47,6 @@
             // 
             // btnStop
             // 
-            this.btnStop.Enabled = false;
             this.btnStop.Location = new System.Drawing.Point(450, 27);
             this.btnStop.Name = "btnStop";
             this.btnStop.Size = new System.Drawing.Size(98, 23);
@@ -55,6 +54,7 @@
             this.btnStop.Text = "Stop";
             this.btnStop.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnStop.UseVisualStyleBackColor = true;
+            this.btnStop.Click += new System.EventHandler(this.btnStop_Click);
             // 
             // txtHost
             // 
@@ -80,6 +80,7 @@
             this.btnListen.TabIndex = 9;
             this.btnListen.Text = "Listen";
             this.btnListen.UseVisualStyleBackColor = true;
+            this.btnListen.Click += new System.EventHandler(this.btnListen_Click);
             // 
             // txtPort
             // 
@@ -111,6 +112,7 @@
             this.Controls.Add(this.label1);
             this.Name = "FormServer";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.FormServer_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 

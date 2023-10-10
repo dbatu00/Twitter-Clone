@@ -62,6 +62,7 @@
             this.btnConnect.TabIndex = 2;
             this.btnConnect.Text = "Connect";
             this.btnConnect.UseVisualStyleBackColor = true;
+            this.btnConnect.Click += new System.EventHandler(this.btnConnect_Click);
             // 
             // label2
             // 
@@ -98,7 +99,7 @@
             this.btnSend.Text = "Send";
             this.btnSend.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
             this.btnSend.UseVisualStyleBackColor = true;
-            this.btnSend.Click += new System.EventHandler(this.btnDisconnect_Click);
+            this.btnSend.Click += new System.EventHandler(this.btnSend_Click);
             // 
             // txtStatus
             // 
@@ -123,6 +124,7 @@
             this.Controls.Add(this.label1);
             this.Name = "FormClient";
             this.Text = "Client";
+            this.Load += new System.EventHandler(this.FormClient_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
