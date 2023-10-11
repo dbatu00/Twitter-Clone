@@ -1,186 +1,198 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Threading;
-using SimpleTCP;
+using System.Windows.Forms;
 
-
-/* 
-
-class Program
-{
-   
-
-    static void Main(string[] args)
-    {
-        try
-        {
-            server = new TcpListener(IPAddress.Any, 8080);
-            server.Start();
-
-            Console.WriteLine("Server started. Listening for clients...");
-
-            while (true)
-            {
-                TcpClient client = server.AcceptTcpClient();
-                clients.Add(client);
-
-                Thread clientThread = new Thread(() => HandleClient(client));
-                clientThread.Start();
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("An error occurred: " + ex.Message);
-        }
-        finally
-        {
-            server.Stop();
-        }
-    }
-
-    static void HandleClient(TcpClient client)
-    {
-        try
-        {
-            NetworkStream stream = client.GetStream();
-            byte[] buffer = new byte[1024];
-            int bytesRead;
-
-            Console.WriteLine("Client connected.");
-
-            while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
-                Console.WriteLine("Received: " + message);
-
-                // Broadcast the message to all connected clients
-                BroadcastMessage(message);
-
-                // Clear the buffer for the next read
-                Array.Clear(buffer, 0, buffer.Length);
-            }
-
-            Console.WriteLine("Client disconnected.");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine("An error occurred with a client: " + ex.Message);
-        }
-        finally
-        {
-            clients.Remove(client);
-            client.Close();
-        }
-    }
-
-    static void BroadcastMessage(string message)
-    {
-        byte[] data = Encoding.UTF8.GetBytes(message);
-
-        foreach (TcpClient client in clients)
-        {
-            NetworkStream stream = client.GetStream();
-            stream.Write(data, 0, data.Length);
-        }
-    }
-}
-*/
 namespace WindowsFormsApp1
 {
     public partial class FormServer : Form
     {
+        private TcpListener server;
+        private List<TcpClient> clients = new List<TcpClient>();
 
-        static SimpleTcpServer server;
-        static List<SimpleTcpClient> clients = new List<SimpleTcpClient>();
+        Dictionary<string, string> userCredentials = new Dictionary<string, string>
+        {
+            { "user1", "password1" },
+            { "user2", "password2" },
+        };
 
         bool listening = false;
 
         public FormServer()
         {
             InitializeComponent();
-        }    
+        }
 
         private void FormServer_Load(object sender, EventArgs e)
         {
-            //hardcoded for convenience
+            // Hardcoded for convenience
             txtHost.Text = "127.0.0.1";
             txtPort.Text = "8080";
-
-            server = new SimpleTcpServer();
-            server.Delimiter = (byte)'\r';
-            server.StringEncoder = Encoding.UTF8;
-            server.DataReceived += Server_DataReceived; //subscribe event to function
         }
-        private void Server_DataReceived(object sender, SimpleTCP.Message e)
+
+        private void Server_DataReceived(object sender, string message)
         {
-            txtStatus.Invoke((MethodInvoker)delegate () //ensuring UI update takes place on the UI thread
+            string[] msgParts = message.Split(' ');
+            string command = msgParts[0].Trim();
+
+            switch (command)
             {
-                txtStatus.Text += e.MessageString;
-                txtStatus.AppendText(Environment.NewLine);
-                e.ReplyLine(string.Format("You said :{0}", e.MessageString));
-            });
+                case "LOGIN":
+                    if (msgParts.Length == 3)
+                    {
+                        string username = msgParts[1].Trim();
+                        string password = msgParts[2].Trim();
+                        if (ValidateUser(username, password))
+                        {
+                            // Handle authentication response (you can use a separate method)
+                            SendResponseToClient("Authentication successful.", sender as TcpClient);
+                        }
+                        else
+                        {
+                            // Handle authentication failure (you can use a separate method)
+                            SendResponseToClient("Authentication failed.", sender as TcpClient);
+                        }
+                    }
+                    else
+                    {
+                        // Handle invalid request format (you can use a separate method)
+                        SendResponseToClient("Invalid LOGIN request format.", sender as TcpClient);
+                    }
+                    break;
+
+                case "OTHER_ACTION":
+                    // Handle other actions here
+                    break;
+
+                default:
+                    // Handle unknown command (you can use a separate method)
+                    SendResponseToClient("Unknown command.", sender as TcpClient);
+                    break;
+            }
+        }
+
+        private bool ValidateUser(string username, string password)
+        {
+            if (userCredentials.TryGetValue(username, out string storedPassword))
+            {
+                return password == storedPassword;
+            }
+            return false;
         }
 
         private void btnListen_Click(object sender, EventArgs e)
         {
-            txtStatus.Text += "Server starting...\n";
-            
-            //start server
-            System.Net.IPAddress ip;
-            System.Net.IPAddress.TryParse(txtHost.Text, out ip);
-            server.Start(ip, Convert.ToInt32(txtPort.Text));
-            
-            //global parameters
-            listening = true;
-            btnStop.Enabled = true;
-            
-            //start client accepting thread
-            //Thread acceptThread = new Thread(new ThreadStart(Accept));
-            //acceptThread.Start();
+            if (!listening)
+            {
+                StartServer();
+                listening = true;
+                btnStop.Enabled = true;
+            }
         }
 
-        //private void Accept() 
-        //{
-        //    while (listening)
-        //    {
-        //        try
-        //        {
-        //            SimpleTcpClient newClient = server.Accept();
-        //            socketList.Add(newClient); //accept clients
-        //            logs.AppendText("A client is connected \n");
+        private void StartServer()
+        {
+            string host = txtHost.Text;
+            int port = int.Parse(txtPort.Text);
 
-        //            Thread receiveThread = new Thread(() => Receive(newClient)); // updated
-        //            receiveThread.Start();
-        //        }
-        //        catch
-        //        {
-        //            if (terminating)
-        //            {
-        //                listening = false;
-        //            }
-        //            else
-        //            {
-        //                logs.AppendText("The socket stopped working \n");
-        //            }
-        //        }
-        //    }
-        //}
+            server = new TcpListener(IPAddress.Parse(host), port);
+            server.Start();
 
+            Thread acceptThread = new Thread(AcceptClients);
+            acceptThread.Start();
+            txtStatus.Text += "Server started...";
+            txtStatus.Text += Environment.NewLine;
+        }
+
+        private void AcceptClients()
+        {
+            while (listening)
+            {
+                try
+                {
+                    TcpClient client = server.AcceptTcpClient();
+                    clients.Add(client);
+
+                    Thread clientThread = new Thread(() => HandleClient(client));
+                    clientThread.Start();
+                }
+                catch (Exception ex)
+                {
+                    if (listening)
+                    {
+                        txtStatus.Text += "An error occurred: " + ex.Message + Environment.NewLine;
+                    }
+                }
+            }
+        }
+
+        private void HandleClient(TcpClient client)
+        {
+            try
+            {
+                NetworkStream stream = client.GetStream();
+                byte[] buffer = new byte[1024];
+                int bytesRead;
+
+                txtStatus.Invoke((MethodInvoker)delegate
+                {
+                    txtStatus.Text += $"Client:{client.Client.RemoteEndPoint} connected.{Environment.NewLine}";
+                });
+
+                while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+                    // Process the received message
+                    Server_DataReceived(client, message);
+
+                    Array.Clear(buffer, 0, buffer.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Invoke((MethodInvoker)delegate
+                {
+                    txtStatus.Text += $"An error occurred with the client: {client.Client.RemoteEndPoint} " + ex.Message + Environment.NewLine;
+                });
+            }
+            finally
+            {
+                txtStatus.Text += $"Client removed: {client.Client.RemoteEndPoint} {Environment.NewLine}";
+                clients.Remove(client);
+                client.Close();
+            }
+        }
+
+        private void SendResponseToClient(string response, TcpClient client)
+        {
+            try
+            {
+                NetworkStream stream = client.GetStream();
+                byte[] data = Encoding.UTF8.GetBytes(response);
+                stream.Write(data, 0, data.Length);
+            }
+            catch (Exception ex)
+            {
+                txtStatus.Invoke((MethodInvoker)delegate
+                {
+                    txtStatus.Text += "An error occurred while sending a response: " + ex.Message + Environment.NewLine;
+                });
+            }
+        }
 
         private void btnStop_Click(object sender, EventArgs e)
         {
-            server.Stop();
-            listening = false;
-            btnListen.Enabled = true;
-            btnStop.Enabled = false;
+            if (listening)
+            {
+                listening = false;
+                server.Stop();
+                btnListen.Enabled = true;
+                btnStop.Enabled = false;
+            }
         }
-
     }
 }
