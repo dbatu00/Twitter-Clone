@@ -60,6 +60,8 @@ namespace WindowsFormsApp1
                     {
                         // Handle invalid request format (you can use a separate method)
                         SendResponseToClient("Invalid LOGIN request format.", sender as TcpClient);
+                        UpdateStatus($"Invalid LOGIN request by {((TcpClient)sender).Client.RemoteEndPoint}." +
+                                     $"{Environment.NewLine}");
                     }
                     break;
 
@@ -70,16 +72,28 @@ namespace WindowsFormsApp1
                 default:
                     // Handle unknown command (you can use a separate method)
                     SendResponseToClient("Unknown command.", sender as TcpClient);
+                    UpdateStatus($"Received UNKNOWN command by {((TcpClient)sender).Client.RemoteEndPoint}." +
+                                 $"{Environment.NewLine}");
                     break;
             }
         }
 
         private bool ValidateUser(string username, string password)
         {
-            if (userCredentials.TryGetValue(username, out string storedPassword))
+            if (userCredentials.TryGetValue(username, out string storedPassword)) // does the username exist in user list?
             {
-                return password == storedPassword;
+                if (storedPassword != password) //incorrect password
+                {
+                    UpdateStatus($"User: {username} entered wrong password." + Environment.NewLine);
+                    return false;
+                }
+                else //correct password
+                {
+                    UpdateStatus($"User: {username} connected." + Environment.NewLine);
+                    return true;
+                }            
             }
+            UpdateStatus($"Unknown actor with username: {username} had a failed connection attempt.");
             return false;
         }
 
@@ -90,6 +104,7 @@ namespace WindowsFormsApp1
                 StartServer();
                 listening = true;
                 btnStop.Enabled = true;
+                btnListen.Enabled = false;
             }
         }
 
@@ -123,7 +138,7 @@ namespace WindowsFormsApp1
                 {
                     if (listening)
                     {
-                        txtStatus.Text += "An error occurred: " + ex.Message + Environment.NewLine;
+                        UpdateStatus("An error occurred while listening: " + ex.Message + Environment.NewLine);
                     }
                 }
             }
@@ -137,10 +152,7 @@ namespace WindowsFormsApp1
                 byte[] buffer = new byte[1024];
                 int bytesRead;
 
-                txtStatus.Invoke((MethodInvoker)delegate
-                {
-                    txtStatus.Text += $"Client:{client.Client.RemoteEndPoint} connected.{Environment.NewLine}";
-                });
+                UpdateStatus($"Client:{client.Client.RemoteEndPoint} connected.{Environment.NewLine}");
 
                 while ((bytesRead = stream.Read(buffer, 0, buffer.Length)) > 0)
                 {
@@ -154,14 +166,12 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                txtStatus.Invoke((MethodInvoker)delegate
-                {
-                    txtStatus.Text += $"An error occurred with the client: {client.Client.RemoteEndPoint} " + ex.Message + Environment.NewLine;
-                });
+                UpdateStatus("An error occurred with the client: " + client.Client.RemoteEndPoint
+                                                                    + ex.Message + Environment.NewLine);
             }
             finally
             {
-                txtStatus.Text += $"Client removed: {client.Client.RemoteEndPoint} {Environment.NewLine}";
+                UpdateStatus("Client removed: " + client.Client.RemoteEndPoint + Environment.NewLine);
                 clients.Remove(client);
                 client.Close();
             }
@@ -177,10 +187,7 @@ namespace WindowsFormsApp1
             }
             catch (Exception ex)
             {
-                txtStatus.Invoke((MethodInvoker)delegate
-                {
-                    txtStatus.Text += "An error occurred while sending a response: " + ex.Message + Environment.NewLine;
-                });
+                UpdateStatus("An error occurred while sending a response: " + ex.Message + Environment.NewLine);
             }
         }
 
@@ -190,9 +197,19 @@ namespace WindowsFormsApp1
             {
                 listening = false;
                 server.Stop();
+                txtStatus.Text += "Server stopped.";
+                txtStatus.Text += Environment.NewLine;
                 btnListen.Enabled = true;
                 btnStop.Enabled = false;
             }
+        }
+
+        private void UpdateStatus(string message)
+        {
+            txtStatus.Invoke((MethodInvoker)delegate
+            {
+                txtStatus.Text += message;
+            });
         }
     }
 }
