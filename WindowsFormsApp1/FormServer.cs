@@ -130,6 +130,7 @@ namespace WindowsFormsApp1
                 {
                     TcpClient client = server.AcceptTcpClient();
                     clients.Add(client);
+                    SendResponseToClient("Connection succesfull.", client);
 
                     Thread clientThread = new Thread(() => HandleClient(client));
                     clientThread.Start();
