@@ -36,10 +36,11 @@
             this.txtMessage = new System.Windows.Forms.TextBox();
             this.btnSend = new System.Windows.Forms.Button();
             this.txtStatus = new System.Windows.Forms.TextBox();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtUsername = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.txtPassword = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
+            this.btnLogin = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -60,7 +61,7 @@
             // 
             // btnConnect
             // 
-            this.btnConnect.Location = new System.Drawing.Point(429, 58);
+            this.btnConnect.Location = new System.Drawing.Point(429, 29);
             this.btnConnect.Name = "btnConnect";
             this.btnConnect.Size = new System.Drawing.Size(102, 23);
             this.btnConnect.TabIndex = 2;
@@ -112,13 +113,12 @@
             this.txtStatus.Size = new System.Drawing.Size(490, 213);
             this.txtStatus.TabIndex = 8;
             // 
-            // textBox1
+            // txtUsername
             // 
-            this.textBox1.Location = new System.Drawing.Point(98, 58);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(126, 22);
-            this.textBox1.TabIndex = 12;
-
+            this.txtUsername.Location = new System.Drawing.Point(98, 58);
+            this.txtUsername.Name = "txtUsername";
+            this.txtUsername.Size = new System.Drawing.Size(126, 22);
+            this.txtUsername.TabIndex = 12;
             // 
             // label3
             // 
@@ -128,15 +128,13 @@
             this.label3.Size = new System.Drawing.Size(73, 16);
             this.label3.TabIndex = 11;
             this.label3.Text = "Username:";
-
             // 
-            // textBox2
+            // txtPassword
             // 
-            this.textBox2.Location = new System.Drawing.Point(311, 58);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 22);
-            this.textBox2.TabIndex = 10;
-
+            this.txtPassword.Location = new System.Drawing.Point(311, 58);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.Size = new System.Drawing.Size(100, 22);
+            this.txtPassword.TabIndex = 10;
             // 
             // label4
             // 
@@ -146,16 +144,27 @@
             this.label4.Size = new System.Drawing.Size(70, 16);
             this.label4.TabIndex = 9;
             this.label4.Text = "Password:";
-   
+            // 
+            // btnLogin
+            // 
+            this.btnLogin.Enabled = false;
+            this.btnLogin.Location = new System.Drawing.Point(429, 61);
+            this.btnLogin.Name = "btnLogin";
+            this.btnLogin.Size = new System.Drawing.Size(102, 23);
+            this.btnLogin.TabIndex = 13;
+            this.btnLogin.Text = "Login";
+            this.btnLogin.UseVisualStyleBackColor = true;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
             // FormClient
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(582, 452);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.btnLogin);
+            this.Controls.Add(this.txtUsername);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.textBox2);
+            this.Controls.Add(this.txtPassword);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.txtStatus);
             this.Controls.Add(this.btnSend);
@@ -183,10 +192,11 @@
         private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.Button btnSend;
         private System.Windows.Forms.TextBox txtStatus;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtUsername;
         private System.Windows.Forms.Label label3;
-        private System.Windows.Forms.TextBox textBox2;
+        private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button btnLogin;
     }
 }
 
