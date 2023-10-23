@@ -12,12 +12,18 @@ namespace WindowsFormsApp1
     {
         private TcpListener server;
         private List<TcpClient> clients = new List<TcpClient>();
+        List<ClientInfo> loggedInClients = new List<ClientInfo>();
 
         Dictionary<string, string> userCredentials = new Dictionary<string, string>
         {
             { "user1", "password1" },
             { "user2", "password2" },
         };
+        public class ClientInfo
+        {
+            public TcpClient TcpClient { get; set; }
+            public string Username { get; set; }
+        }
 
         bool listening = false;
 
@@ -33,7 +39,7 @@ namespace WindowsFormsApp1
             txtPort.Text = "8080";
         }
 
-        private void Server_DataReceived(object sender, string message)
+        private void Server_DataReceived(TcpClient client, string message)
         {
             string[] msgParts = message.Split(' ');
             string command = msgParts[0].Trim();
@@ -45,34 +51,45 @@ namespace WindowsFormsApp1
                     {
                         string username = msgParts[1].Trim();
                         string password = msgParts[2].Trim();
+                        
                         if (ValidateUser(username, password))
                         {
+                            ClientInfo clientInfo = new ClientInfo
+                            {
+                                TcpClient = client,
+                                Username = username
+                            };
+                            loggedInClients.Add(clientInfo);
+
                             // Handle authentication response (you can use a separate method)
-                            SendResponseToClient("Authentication successful.", sender as TcpClient);
+                            SendResponseToClient("Authentication successful.", client);
                         }
                         else
                         {
                             // Handle authentication failure (you can use a separate method)
-                            SendResponseToClient("Authentication failed.", sender as TcpClient);
+                            SendResponseToClient("Authentication failed.", client);
                         }
                     }
                     else
                     {
                         // Handle invalid request format (you can use a separate method)
-                        SendResponseToClient("Invalid LOGIN request format.", sender as TcpClient);
-                        UpdateStatus($"Invalid LOGIN request by {((TcpClient)sender).Client.RemoteEndPoint}." +
+                        SendResponseToClient("Invalid LOGIN request format.", client);
+                        UpdateStatus($"Invalid LOGIN request by {((TcpClient)client).Client.RemoteEndPoint}." +
                                      $"{Environment.NewLine}");
                     }
                     break;
 
-                case "OTHER_ACTION":
-                    // Handle other actions here
+                case "MSG":
+                    SendResponseToClient($"You have said: {message}", client);
+                    //UpdateStatus("");
+                    //ClientInfo foundClient = clients.Find(client => client.Client.ToString == (sender as TcpClient).ToString);
+                    //loggedInClients.Find
                     break;
 
                 default:
                     // Handle unknown command (you can use a separate method)
-                    SendResponseToClient("Unknown command.", sender as TcpClient);
-                    UpdateStatus($"Received UNKNOWN command by {((TcpClient)sender).Client.RemoteEndPoint}." +
+                    SendResponseToClient("Unknown command.", client);
+                    UpdateStatus($"Received UNKNOWN command by {((TcpClient)client).Client.RemoteEndPoint}." +
                                  $"{Environment.NewLine}");
                     break;
             }
