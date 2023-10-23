@@ -5,6 +5,8 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using System.Linq;
+
 
 namespace WindowsFormsApp1
 {
@@ -74,22 +76,25 @@ namespace WindowsFormsApp1
                     {
                         // Handle invalid request format (you can use a separate method)
                         SendResponseToClient("Invalid LOGIN request format.", client);
-                        UpdateStatus($"Invalid LOGIN request by {((TcpClient)client).Client.RemoteEndPoint}." +
+                        UpdateStatus($"Invalid LOGIN request by {client.Client.RemoteEndPoint}." +
                                      $"{Environment.NewLine}");
                     }
                     break;
 
                 case "MSG":
-                    SendResponseToClient($"You have said: {message}", client);
-                    //UpdateStatus("");
-                    //ClientInfo foundClient = clients.Find(client => client.Client.ToString == (sender as TcpClient).ToString);
-                    //loggedInClients.Find
+                    SendResponseToClient($"You have said: {message.Substring(4)}", client);
+                    UpdateStatus($"User " +
+                                 $"{(loggedInClients.Find(info => info.TcpClient == client)).Username} " +
+                                 $"says : " +
+                                 $"{message.Substring(4)}" +
+                                 $"{Environment.NewLine}");
+
                     break;
 
                 default:
                     // Handle unknown command (you can use a separate method)
                     SendResponseToClient("Unknown command.", client);
-                    UpdateStatus($"Received UNKNOWN command by {((TcpClient)client).Client.RemoteEndPoint}." +
+                    UpdateStatus($"Received UNKNOWN command by {client.Client.RemoteEndPoint}." +
                                  $"{Environment.NewLine}");
                     break;
             }

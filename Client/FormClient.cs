@@ -17,8 +17,11 @@ namespace Client
         public FormClient()
         {
             InitializeComponent();
+            //hardcoded for convenience
             txtHost.Text = "127.0.0.1";
             txtPort.Text = "8080";
+            txtUsername.Text = "user1";
+            txtPassword.Text = "password1";
         } 
 
         private TcpClient client;
@@ -34,7 +37,7 @@ namespace Client
 
         private void btnSend_Click(object sender, EventArgs e)
         {
-            stream.Write(Encoding.UTF8.GetBytes(txtMessage.Text), 0, txtMessage.Text.Length);
+            stream.Write(Encoding.UTF8.GetBytes("MSG" + " " + txtMessage.Text), 0, txtMessage.Text.Length + 4);
             txtStatus.Text += "\n";
         }
 
