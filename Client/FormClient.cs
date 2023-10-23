@@ -60,6 +60,8 @@ namespace Client
                 txtStatus.AppendText(Environment.NewLine);
             });
         }
+
+       
     }
     
 }
