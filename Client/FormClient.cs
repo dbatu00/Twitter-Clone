@@ -38,10 +38,19 @@ namespace Client
 
         private void btnConnect_Click(object sender, EventArgs e)
         {
-            client.Connect(txtHost.Text, Convert.ToInt32(txtPort.Text));
-            btnConnect.Enabled = false;
-            btnSend.Enabled = true;     
+            try
+            {
+                client.Connect(txtHost.Text, Convert.ToInt32(txtPort.Text));
+                btnConnect.Enabled = false;
+                btnSend.Enabled = true;
+            }
+            catch (Exception ex)
+            {
+                // Handle the exception here (e.g., display an error message).
+                MessageBox.Show($"Connection failed: {ex.Message}", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
+
 
         private void Client_DataReceived(object sender, SimpleTCP.Message e)
         {
